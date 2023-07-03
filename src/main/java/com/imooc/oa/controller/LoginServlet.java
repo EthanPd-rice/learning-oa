@@ -36,6 +36,9 @@ public class LoginServlet extends HttpServlet {
             User user = userServer.checkLogin(username,password);
             result.put("code","0");
             result.put("message","success");
+            Map data = new LinkedHashMap();
+            data.put("user",user);
+            result.put("data",data);
         }catch (Exception e){
             e.printStackTrace();
             result.put("code",e.getClass().getSimpleName());

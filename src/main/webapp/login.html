@@ -80,9 +80,24 @@
                 //根据外侧所传入的表单名称，从当前的页面的引用中将表单对象进行获取
                 const form = this.$refs[formName];
                 //validate方法对表单进行校验,value判断是否有效
-                form.validate((value) => {
-                    if(value){
-                        console.log("表单校验成功，准备提交数据")
+                form.validate((valid) => {
+                    if(valid){
+                        console.log("表单校验成功，准备提交数据");
+                        const form = this.form;
+                        //$message是ElementPlus所内置的消息对话框组件
+                        const $message = this.$message;
+                        const params = new URLSearchParams();
+                        params.append("username",form.username);
+                        params.append("password",form.password);
+                        axios.post("/api/login",params,{}).then(function (response){
+                            console.info(response);
+                            const json = response.data;
+                            if(json.code=="0"){
+                                window.location.href = "/index.html";
+                            }else{
+                                $message.error({message:json.message,offset:100})
+                            }
+                        })
                     }
                 } )
             }
