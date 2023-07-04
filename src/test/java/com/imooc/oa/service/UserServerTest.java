@@ -9,7 +9,7 @@ public class UserServerTest {
     private UserServer userServer = new UserServer();
     @Test
     public void checkLogin() {
-        User user = userServer.checkLogin("test1","test1");
+        User user = userServer.checkLogin("m8","test");
         System.out.println(user);
     }
 }

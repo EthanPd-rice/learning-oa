@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.imooc.oa.entity.User;
 import com.imooc.oa.service.UserServer;
+import com.imooc.oa.utils.ResponseUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -31,26 +32,21 @@ public class LoginServlet extends HttpServlet {
         response.setContentType("application/json;charset=utf-8");
         String username = request.getParameter("username");
         String password = request.getParameter("password");
-        Map result = new LinkedHashMap();
+        ResponseUtils resp = null;
         try{
             User user = userServer.checkLogin(username,password);
-            result.put("code","0");
-            result.put("message","success");
-            Map data = new LinkedHashMap();
-            data.put("user",user);
-            result.put("data",data);
+            user.setUsername(null);
+            user.setPassword(null);
+            resp = new ResponseUtils().put("user",user);
         }catch (Exception e){
             e.printStackTrace();
-            result.put("code",e.getClass().getSimpleName());
-            result.put("message",e.getMessage());
+            resp = new ResponseUtils(e.getClass().getSimpleName(),e.getMessage());
         }
         ObjectMapper objectMapper = new ObjectMapper();
         //JsonInclude.Include.NON_EMPTY表示只包含属性值不为空的属性。当使用该选项时，
         // ObjectMapper在将Java对象转换为JSON字符串时，只会包含那些属性值不为空的属性，
         // 而对于值为null、空字符串或集合为空的属性，则会被忽略。
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-        String json = objectMapper.writeValueAsString(result);
-        response.getWriter().println(json);
+        response.getWriter().println(resp.toJsonString());
     }
 
     public UserServer getUserServer() {
