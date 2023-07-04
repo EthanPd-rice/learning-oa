@@ -27,14 +27,39 @@
     <div id="app">
         <el-container style="height: 100%;border: 1px solid #eee">
             <el-header>
-                我是header
+                <el-row>
+                    <el-col :span="12">
+                        <span style="font-size: 18px;color: darkcyan">慕课网办公OA系统</span>
+                    </el-col>
+                    <el-col :span="12" style="text-align:right">
+                        <el-dropdown>
+                            <i class="el-icon-s-check" style="font-size: 18px;margin-right: 15px">
+                            <span style="margin-right: 15px">{{employee.name}}.{{employee.title}}</span>
+                            </i>
+                            <template #dropdown>
+                                <el-dropdown-menu>
+                                    <el-dropdown-item v-on:click="logout">注销</el-dropdown-item>
+                                </el-dropdown-menu>
+                            </template>
+                        </el-dropdown>
+                    </el-col>
+                </el-row>
             </el-header>
             <el-container>
                 <el-aside with="200px" style="max-height:100%;background-color: rgb(238,241,246)">
-                    我是功能区
+                    <el-menu :default-openeds="['0']">
+                        <template v-for="(n,idx) in nodeList">
+                            <el-submenu :index="idx.toString()">
+                                <template #title><i class="el-icon-s-tools"></i>{{n.node.nodeName}}</template>
+                                <template v-for="func in n.children">
+                                    <el-menu-item :index="func.nodeId.toString()" v-on:click="showPage(func.url)">{{func.nodeName}}</el-menu-item>
+                                </template>
+                            </el-submenu>
+                        </template>
+                    </el-menu>
                 </el-aside>
                 <el-main>
-                    <iframe id="main" name="main" src="https://www.imooc.com/" style="width: 100%;height: 95%;border: 0px"></iframe>
+                    <iframe id="main" name="main" src="www.baidu.com" style="width: 100%;height: 95%;border: 0px"></iframe>
                 </el-main>
             </el-container>
         </el-container>
@@ -42,7 +67,33 @@
     <script>
         const Main = {
             data(){
-                return {}
+                return {
+                    nodeList:[]
+                    ,employee:[]
+                }
+            }
+            ,methods:{
+                showPage(url){
+                    document.getElementById("main").src = url;
+                }
+                ,logout(){
+                    sessionStorage.clear();
+                    window.location.href = "/login.html";
+                }
+            }
+            ,mounted(){
+                const objApp = this;
+                const uid = sessionStorage.uid;
+                const eid = sessionStorage.eid;
+                axios.get("/api/user_info?uid="+uid+"&eid="+eid)
+                    .then(function (response){
+                        const json = response.data;
+                        json.data.nodeList.forEach(function (item){
+                            objApp.nodeList.push(item);
+                        })
+                        console.info(objApp.nodeList);
+                        objApp.employee = json.data.employee;
+                    })
             }
         }
         const app = Vue.createApp(Main);

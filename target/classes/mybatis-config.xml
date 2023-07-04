@@ -30,5 +30,6 @@
         <mapper resource="mappers/test.xml"></mapper>
         <mapper resource="mappers/user.xml"></mapper>
         <mapper resource="mappers/rbac.xml"></mapper>
+        <mapper resource="mappers/employee.xml"></mapper>
     </mappers>
 </configuration>

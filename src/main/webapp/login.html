@@ -46,7 +46,7 @@
             <!--primary代表的是默认的处理按钮,
             v-on是element plus 所提供的动态绑定事件的自定义属性，click表示事件名表单击
             onSubmit方法下面会定义，onSubmit提交时，把当前表单的loginForm文本传入其中，就可以获取到当前表单的完整对象了-->
-            <el-button type="primary" v-on:click="onSubmit('loginForm')" style="width: 200px" >登录</el-button>
+            <el-button type="primary"  v-on:click="onSubmit('loginForm')" style="width: 200px" >登录</el-button>
         </el-form-item>
 
     </el-form>
@@ -93,6 +93,8 @@
                             console.info(response);
                             const json = response.data;
                             if(json.code=="0"){
+                                sessionStorage.uid = json.data.user.userId;
+                                sessionStorage.eid = json.data.user.employeeId;
                                 window.location.href = "/index.html";
                             }else{
                                 $message.error({message:json.message,offset:100})
