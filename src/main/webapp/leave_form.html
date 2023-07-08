@@ -29,8 +29,8 @@
 <div id="app">
     <el-form ref="leaveForm" :model="form" :rules="rules" label-width="80px">
         <el-descriptions title="请假申请单" :column="1" border>
-            <el-descriptions-item label="部门">研发部</el-descriptions-item>
-            <el-descriptions-item label="申请人">王美美[高级研发工程师]
+            <el-descriptions-item label="部门">{{department.departmentName}}</el-descriptions-item>
+            <el-descriptions-item label="申请人">{{employee.name}}[{{employee.title}}]
             </el-descriptions-item>
             <el-descriptions-item label="请假类型">
 
@@ -52,7 +52,8 @@
                                 type="datetimerange"
                                 range-separator="至"
                                 start-placeholder="开始日期"
-                                end-placeholder="结束日期">
+                                end-placeholder="结束日期"
+                                @change="changeTimeRange">
                         </el-date-picker>
                     </div>
                 </el-form-item>
@@ -65,7 +66,7 @@
 
         </el-descriptions>
         <div style="text-align: center;padding-top: 30px">
-            <el-button type="primary" >立即申请</el-button>
+            <el-button type="primary" v-on:click="onSubmit('leaveForm')" >立即申请</el-button>
         </div>
     </el-form>
 
@@ -76,16 +77,22 @@
     var Main = {
         data() {
             return {
-                form: {
+                employee:{
+
+                }
+                ,department:{
+
+                }
+                ,form: {
                     formType: "1",
                     timeRange: "",
                     startTime: "",
                     endTime: "",
                     reason: "",
                     eid: "",
-                },
+                }
                 // 表单验证，需要在 el-form-item 元素中增加 prop 属性
-                rules: {
+                ,rules: {
                     timeRange: [
                         {required: true, message: '请选择请假时间', trigger: 'blur'}
                     ],
@@ -95,6 +102,56 @@
                 }
             }
         }
+        ,mounted(){
+            const objapp = this;
+            axios.get("/api/user_info?uid="+sessionStorage.uid+"&eid="+sessionStorage.eid)
+                .then(function (response){
+                    objapp.employee = response.data.data.employee;
+                    console.info(objapp.employee)
+                    objapp.department = response.data.data.department;
+                    console.info(objapp.department)
+                })
+        }
+        ,methods: {
+            //methods对象中的方法是直接定义为函数，而不是传递给changeTimeRange方法的回调函数。因此，正确的写法是将函数直接定义为changeTimeRange的值，而不是使用回调函数的写法。
+            changeTimeRange: function() {
+                console.info(this.form.timeRange);
+                this.form.startTime = this.form.timeRange[0].getTime();//要注意传过去的数值要getTime()
+                this.form.endTime = this.form.timeRange[1].getTime();
+            }
+            ,onSubmit(formName){
+                const objapp = this;
+                const formDate = this.form;
+                const $message = this.$message;
+                this.$refs[formName].validate(function (valid){
+                    if(valid){
+                        const params = new URLSearchParams();
+                        params.append("formType",formDate.formType);
+                        params.append("startTime",formDate.startTime);
+                        params.append("endTime",formDate.endTime);
+                        params.append("reason",formDate.reason);
+                        params.append("eid",sessionStorage.eid)//别忘了eid也要取过来
+                        axios.post("/api/leave/create",params)
+                            .then(function (response){
+                                console.info(response);
+                                const json = response.data;
+                                if(json.code == 0){
+                                    objapp.$alert("请假单已提交，等待上级审批",{
+                                        callback:function (){
+                                            window.location.href = "/notice.html";
+                                        }
+                                    })
+                                }else{
+                                    $message.error({message:json.message,offset:100})
+                                }
+                            })
+                    }
+                }
+                )
+
+            }
+        }
+
     };
     ElementPlus.locale(ElementPlus.lang.zhCn);
     const app = Vue.createApp(Main);

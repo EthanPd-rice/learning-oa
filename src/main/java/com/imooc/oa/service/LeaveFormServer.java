@@ -17,7 +17,7 @@ public class LeaveFormServer {
      * @return 持久化后的请假单对象
      */
     public LeaveForm createLeaveForm(LeaveForm form){
-        EmployeeService employeeService = new EmployeeService();
+        EmployeeServer employeeServer = new EmployeeServer();
         LeaveForm f = (LeaveForm) MybatisUtils.executeUpdate(sqlSession -> {
             //1.持久化form表单数据，8级以下员工表单状态为processing,8级（总经理）状态为approved
             EmployeeMapper employeeMapper = sqlSession.getMapper(EmployeeMapper.class);
@@ -44,7 +44,7 @@ public class LeaveFormServer {
             //3.1 7级以下员工，生成部门经理审批任务，请假时间大于72小时，还需生成总经理审批任务。
             if(employee.getLevel()<7){
                 ProcessFlow flow2 = new ProcessFlow();
-                Employee dmanage = employeeService.selectLeader(employee.getEmployeeId());
+                Employee dmanage = employeeServer.selectLeader(employee.getEmployeeId());
                 flow2.setFormId(form.getFormId());
                 flow2.setOperatorId(dmanage.getEmployeeId());
                 flow2.setAction("audit");
@@ -59,7 +59,7 @@ public class LeaveFormServer {
                     flow2.setIsLast(0);
                     processFlowMapper.insert(flow2);
                     ProcessFlow flow3 = new ProcessFlow();
-                    Employee manage = employeeService.selectLeader(dmanage.getEmployeeId());
+                    Employee manage = employeeServer.selectLeader(dmanage.getEmployeeId());
                     flow3.setFormId(form.getFormId());
                     flow3.setOperatorId(manage.getEmployeeId());
                     flow3.setAction("audit");
@@ -76,7 +76,7 @@ public class LeaveFormServer {
             }else if(employee.getLevel() == 7){
                 //3.2 7级员工，仅生成总经理审批任务。
                 ProcessFlow flow2 = new ProcessFlow();
-                Employee manage = employeeService.selectLeader(employee.getEmployeeId());
+                Employee manage = employeeServer.selectLeader(employee.getEmployeeId());
                 flow2.setFormId(form.getFormId());
                 flow2.setOperatorId(manage.getEmployeeId());
                 flow2.setAction("audit");

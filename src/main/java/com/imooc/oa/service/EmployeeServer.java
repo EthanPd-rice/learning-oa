@@ -8,7 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class EmployeeService {
+public class EmployeeServer {
     public Employee selectById(Long employeeId){
         Employee employee = (Employee) MybatisUtils.executeQuery(sqlSession -> {
             EmployeeMapper mapper = sqlSession.getMapper(EmployeeMapper.class);

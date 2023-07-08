@@ -11,7 +11,7 @@ import java.util.Map;
 
 import static org.junit.Assert.*;
 
-public class EmployeeServiceTest {
+public class EmployeeServerTest {
 
     @Test
     public void selectLeader() {

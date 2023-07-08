@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.Date;
 @WebServlet("/api/leave/*")
 public class LeaveFormServlet extends HttpServlet {
+    private LeaveFormServer leaveFormServer = new LeaveFormServer();
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         this.doPost(req, resp);
@@ -50,7 +51,7 @@ public class LeaveFormServlet extends HttpServlet {
         form.setStartTime(new Date(Long.parseLong(startTime)));
         form.setEndTime(new Date(Long.parseLong(endTime)));
         form.setReason(reason);
-        LeaveFormServer leaveFormServer = new LeaveFormServer();
+        System.out.println(form);
         ResponseUtils resp = null;
         try{
             leaveFormServer.createLeaveForm(form);
